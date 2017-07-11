@@ -5,15 +5,15 @@ public class RPSTrainer {
         
     public static final int ROCK = 0, PAPER = 1, SCISSORS = 2, NUM_ACTIONS = 3, PLAYER_1 = 0, PLAYER_2 = 1, NUM_PLAYERS = 2;
     public static final Random random = new Random();
-    double[] regretSum = new double[NUM_PLAYERS][NUM_ACTIONS], 
+    double[][] regretSum = new double[NUM_PLAYERS][NUM_ACTIONS], 
              strategy = new double[NUM_PLAYERS][NUM_ACTIONS], 
-             strategySum = new double[NUM_PLAYERS][NUM_ACTIONS], 
+             strategySum = new double[NUM_PLAYERS][NUM_ACTIONS]; 
              // oppStrategy = { 0.4, 0.3, 0.3 }; 
 
     private double[] getStrategy(int p) {
         double normalizingSum = 0;
         for (int a = 0; a < NUM_ACTIONS; a++) {
-            strategy[a] = regretSum[p][a] > 0 ? regretSum[p][a] : 0;
+            strategy[p][a] = regretSum[p][a] > 0 ? regretSum[p][a] : 0;
             normalizingSum += strategy[p][a];
         }
         for (int a = 0; a < NUM_ACTIONS; a++) {
@@ -23,7 +23,7 @@ public class RPSTrainer {
               strategy[p][a] = 1.0 / NUM_ACTIONS;
             strategySum[p][a] += strategy[p][a];
         }
-        return strategy;
+        return strategy[p];
     }
     
     public int getAction(double[] strategy) {
@@ -46,14 +46,13 @@ public class RPSTrainer {
             int myAction = getAction(strategy);
             int otherAction = getAction(oppStrategy);
             
-            regretSum = getRegretSum(otherAction, regretSum, PLAYER_1);
-            regretSum = getRegretSum(myAction, regretSUm, PLAYER_2);
+            regretSum = getRegretSum(otherAction, myAction, regretSum, PLAYER_1);
+            regretSum = getRegretSum(myAction, otherAction, regretSum, PLAYER_2);
         }
     }
 
-    public double[][] getRegretSum(int otherAction, double[][] regretSum, int p) {
+    public double[][] getRegretSum(int otherAction, int myAction, double[][] regretSum, int p) {
         double[] actionUtility = new double[NUM_ACTIONS];
-        double regretSum = 0;
         actionUtility[otherAction] = 0;
         actionUtility[otherAction == NUM_ACTIONS - 1 ? 0 : otherAction + 1] = 1;
         actionUtility[otherAction == 0 ? NUM_ACTIONS - 1 : otherAction - 1] = -1;
